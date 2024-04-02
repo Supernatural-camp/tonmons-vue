@@ -19,28 +19,28 @@ export class FightScene extends Scene{
     }
 
     create(){
-        this.background = this.add.tileSprite(512, 384, this.game.config.width, this.game.config.height, 'backgroundFight').setAlpha(0.5).setScale(1.0);
+        this.background = this.add.tileSprite(512, 384, this.game.config.width, this.game.config.height, 'backgroundFight').setAlpha(0.5).setScale(1.7);
 
-        // Устанавливаем персонажей
         this.hero1 = this.add.sprite(this.game.config.width / 2 - 150, this.game.config.height / 2, 'hero1').setScale(2.5).setDepth(1).setOrigin(0.5);
         this.hero2 = this.add.sprite(this.game.config.width / 2 + 150, this.game.config.height / 2, 'hero2').setScale(2.5).setDepth(1).setOrigin(0.5);
 
-        // Устанавливаем параметры персонажей
-        this.hero1.hp = 100;
+        this.hero1.name = "Luffy";
+        this.hero2.name = "Zoro";
+
+        this.hero1.hp = 150;
         this.hero1.mp = 110;
 
         this.hero2.hp = 150;
-        this.hero2.mp = 80;
+        this.hero2.mp = 110;
 
-        // Создаем текст для отображения здоровья и маны
-        this.hpText1 = this.add.text(16, this.game.config.height - 50, 'HP: 100', { fontSize: '24px', fill: '#fff' });
-        this.mpText1 = this.add.text(16, this.game.config.height - 30, 'MP: 50', { fontSize: '24px', fill: '#fff' });
+        this.hpText1 = this.add.text(16, this.game.config.height - 80, this.hero1.name + ' HP: 100', { fontSize: '24px', fill: '#fff' });
+        this.mpText1 = this.add.text(16, this.game.config.height - 60, this.hero1.name + ' MP: 50', { fontSize: '24px', fill: '#fff' });
 
-        this.hpText2 = this.add.text(this.game.config.width - 200, this.game.config.height - 50, 'HP: 120', { fontSize: '24px', fill: '#fff' });
-        this.mpText2 = this.add.text(this.game.config.width - 200, this.game.config.height - 30, 'MP: 40', { fontSize: '24px', fill: '#fff' });
-        const buttonSpacing = 120;
+        this.hpText2 = this.add.text(this.game.config.width - 200, this.game.config.height - 80, this.hero2.name + ' HP: 120', { fontSize: '24px', fill: '#fff' });
+        this.mpText2 = this.add.text(this.game.config.width - 200, this.game.config.height - 60, this.hero2.name + ' MP: 40', { fontSize: '24px', fill: '#fff' });
 
-        // Создаем кнопки атаки
+        this.turnText = this.add.text(this.game.config.width / 2, this.game.config.height - 120, 'Your Turn', { fontSize: '32px', fill: '#00ff00' }).setOrigin(0.5);
+
         this.attack1Button = this.createAttackButton(this.game.config.width / 2 - 150, this.game.config.height - 100, 'Attack1', 10, 10);
         this.attack2Button = this.createAttackButton(this.game.config.width / 2 - 30, this.game.config.height - 100, 'Attack2', 25, 20);
         this.ultimateButton = this.createAttackButton(this.game.config.width / 2 + 90, this.game.config.height - 100, 'Ultimate', 50, 50);
@@ -50,15 +50,17 @@ export class FightScene extends Scene{
 
 
         this.time.addEvent({
-            delay: 3000, // Задержка в 3 секунды
-            callback: this.botAttack, // Функция, которая будет вызвана после задержки
-            callbackScope: this, // Область видимости для вызываемой функции
-            loop: true // Повторять событие после каждого выполнения
+            delay: 3000, 
+            callback: this.botAttack,
+            callbackScope: this,
+            loop: true 
         });
 
         this.playerTurn = true;
-
+    
     }
+    
+    
     botAttack() {
         if (!this.playerTurn) {
             const abilities = ['Attack1', 'Attack2', 'Ultimate'];
@@ -84,8 +86,8 @@ export class FightScene extends Scene{
             this.hero1.hp -= damage;
             this.hero2.mp -= manaCost;
 
-            this.hpText1.setText('HP: ' + this.hero1.hp);
-            this.mpText2.setText('MP: ' + this.hero2.mp);
+            this.hpText1.setText(this.hero1.name + ' HP: ' + this.hero1.hp);
+            this.mpText2.setText(this.hero2.name + ' MP: ' + this.hero2.mp);
 
             this.hero1.setTint(0xff0000);
             this.time.delayedCall(200, () => {
@@ -93,6 +95,9 @@ export class FightScene extends Scene{
             });
 
             this.playerTurn = true;
+
+            // Проверка на окончание игры
+            this.checkGameOver();
         }
     }
 
@@ -104,8 +109,8 @@ export class FightScene extends Scene{
                 if (this.playerTurn) {
                     this.hero2.hp -= damage;
                     this.hero1.mp -= manaCost; // Уменьшаем ману первого персонажа
-                    this.hpText2.setText('HP: ' + this.hero2.hp); // Обновляем текст здоровья второго персонажа
-                    this.mpText1.setText('MP: ' + this.hero1.mp); // Обновляем текст маны первого персонажа
+                    this.hpText2.setText(this.hero2.name + ' HP: ' + this.hero2.hp); // Обновляем текст здоровья второго персонажа
+                    this.mpText1.setText(this.hero1.name + ' MP: ' + this.hero1.mp); // Обновляем текст маны первого персонажа
                     this.hero2.setTint(0xff0000); // Устанавливаем красный цвет персонажу
                     this.time.delayedCall(200, () => { // Устанавливаем задержку
                         this.hero2.clearTint(); // Очищаем цвет персонажа
@@ -115,6 +120,9 @@ export class FightScene extends Scene{
                     this.time.delayedCall(4000, () => {
                         this.botAttack(); // Задержка перед ходом бота
                     });
+
+                    // Проверка на окончание игры
+                    this.checkGameOver();
                 }
             })
             .setStroke('#ff0', 5);
@@ -122,14 +130,28 @@ export class FightScene extends Scene{
     }
 
     checkGameOver() {
-        if (this.hero1.hp <= 0 || this.hero2.hp <= 0) {
-            this.scene.start("GameOverScene");
+        if (this.hero1.hp <= 0 || this.hero2.hp <= 0 || this.hero1.mp <= 0 || this.hero2.mp <= 0) {
+            if (this.hero1.mp <= 0 && this.hero2.mp <= 0) {
+                if (this.hero1.hp < this.hero2.hp) {
+                    this.scene.start("GameOverScene", { message: this.hero1.name + " Wins!" });
+                } else if (this.hero1.hp > this.hero2.hp) {
+                    this.scene.start("GameOverScene", { message: this.hero2.name + " Wins!" });
+                } else {
+                    this.scene.start("GameOverScene", { message: "It's a draw!" });
+                }
+            } else {
+                if (this.hero1.mp <= 0) {
+                    this.scene.start("GameOverScene", { message: this.hero1.name + " Loses!" });
+                } else if (this.hero2.mp <= 0) {
+                    this.scene.start("GameOverScene", { message: this.hero2.name + " Loses!" });
+                }
+            }
         }
     }
 
     update(){
-        this.mpText2.setText('MP: ' + this.hero2.mp);
-        this.checkGameOver();
+        this.mpText2.setText(this.hero2.name + ' MP: ' + this.hero2.mp);
+        this.turnText.setText(this.playerTurn ? 'Your Turn' : 'Enemy Turn');
     }
 }
 
@@ -138,7 +160,7 @@ export class GameOverScene extends Scene {
         super("GameOverScene");
     }
 
-    create() {
-        this.add.text(400, 300, 'GAME OVER!!!', { fontSize: '64px', fill: '#fff' }).setOrigin(0.5);
+    create(data) {
+        this.add.text(400, 300, data.message, { fontSize: '64px', fill: '#fff' }).setOrigin(0.5);
     }
 }
