@@ -65,6 +65,9 @@ export class Scene2 extends Scene {
         this.ship3.setInteractive();
 
         this.input.on('gameobjectdown', this.destroyShip, this);
+
+        EventBus.emit('current-scene-ready', this);
+
     }
 
   
@@ -91,5 +94,9 @@ export class Scene2 extends Scene {
 
     destroyShip(pointer, gameObject) {
         gameObject.setTexture('explosion');
+    }
+    changeScene ()
+    {
+        this.scene.start('Fight');
     }
 }
