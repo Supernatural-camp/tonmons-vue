@@ -84,7 +84,7 @@ const currentScene = (scene) => {
         </div>
         <div class="spritePosition">Sprite Position:
             <pre>{{ spritePosition }}</pre>
-        </div>
+        </div>x
         <div>
             <button class="button" @click="addSprite">Add New Sprite</button>
         </div>
