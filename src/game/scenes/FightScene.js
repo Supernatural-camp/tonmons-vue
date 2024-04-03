@@ -28,16 +28,16 @@ export class FightScene extends Scene{
         this.hero2.name = "Zoro";
 
         this.hero1.hp = 150;
-        this.hero1.mp = 110;
+        this.hero1.mp = 150;
 
         this.hero2.hp = 150;
-        this.hero2.mp = 110;
+        this.hero2.mp = 150;
 
-        this.hpText1 = this.add.text(16, this.game.config.height - 80, this.hero1.name + ' HP: 100', { fontSize: '24px', fill: '#fff' });
-        this.mpText1 = this.add.text(16, this.game.config.height - 60, this.hero1.name + ' MP: 50', { fontSize: '24px', fill: '#fff' });
+        this.hpText1 = this.add.text(16, this.game.config.height - 80, this.hero1.name + ' HP: ' + this.hero1.hp, { fontSize: '24px', fill: '#fff' });
+        this.mpText1 = this.add.text(16, this.game.config.height - 60, this.hero1.name + ' MP: ' + this.hero1.mp, { fontSize: '24px', fill: '#fff' });
 
-        this.hpText2 = this.add.text(this.game.config.width - 200, this.game.config.height - 80, this.hero2.name + ' HP: 120', { fontSize: '24px', fill: '#fff' });
-        this.mpText2 = this.add.text(this.game.config.width - 200, this.game.config.height - 60, this.hero2.name + ' MP: 40', { fontSize: '24px', fill: '#fff' });
+        this.hpText2 = this.add.text(this.game.config.width - 200, this.game.config.height - 80, this.hero2.name + ' HP: ' + this.hero2.hp, { fontSize: '24px', fill: '#fff' });
+        this.mpText2 = this.add.text(this.game.config.width - 200, this.game.config.height - 60, this.hero2.name + ' MP: ' + this.hero2.mp, { fontSize: '24px', fill: '#fff' });
 
         this.turnText = this.add.text(this.game.config.width / 2, this.game.config.height - 120, 'Your Turn', { fontSize: '32px', fill: '#00ff00' }).setOrigin(0.5);
 
@@ -109,16 +109,16 @@ export class FightScene extends Scene{
                 if (this.playerTurn) {
                     this.hero2.hp -= damage;
                     this.hero1.mp -= manaCost; // Уменьшаем ману первого персонажа
-                    this.hpText2.setText(this.hero2.name + ' HP: ' + this.hero2.hp); // Обновляем текст здоровья второго персонажа
-                    this.mpText1.setText(this.hero1.name + ' MP: ' + this.hero1.mp); // Обновляем текст маны первого персонажа
-                    this.hero2.setTint(0xff0000); // Устанавливаем красный цвет персонажу
-                    this.time.delayedCall(200, () => { // Устанавливаем задержку
-                        this.hero2.clearTint(); // Очищаем цвет персонажа
+                    this.hpText2.setText(this.hero2.name + ' HP: ' + this.hero2.hp); 
+                    this.mpText1.setText(this.hero1.name + ' MP: ' + this.hero1.mp); 
+                    this.hero2.setTint(0xff0000); 
+                    this.time.delayedCall(200, () => { 
+                        this.hero2.clearTint();
                     });
 
-                    this.playerTurn = false; // Установка флага на ход бота
+                    this.playerTurn = false; 
                     this.time.delayedCall(4000, () => {
-                        this.botAttack(); // Задержка перед ходом бота
+                        this.botAttack(); 
                     });
 
                     // Проверка на окончание игры
