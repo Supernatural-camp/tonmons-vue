@@ -1,56 +1,76 @@
+<script setup>
+import Phaser from 'phaser';
+import { ref, toRaw } from 'vue';
+import PhaserGame from './game/PhaserGame.vue';
+
+// The sprite can only be moved in the MainMenu Scene
+const canMoveSprite = ref();
+
+//  References to the PhaserGame component (game and scene are exposed)
+const phaserRef = ref();
+const spritePosition = ref({ x: 0, y: 0 });
+
+const changeScene = () => {
+
+    const scene = toRaw(phaserRef.value.scene);
+
+    if (scene)
+    {
+        scene.changeScene();
+    }
+
+}
+
+
+const addSprite = () => {
+
+    const scene = toRaw(phaserRef.value.scene);
+
+    if (scene)
+    {
+        //  Add a new sprite to the current scene at a random position
+        const x = Phaser.Math.Between(64, scene.scale.width - 64);
+        const y = Phaser.Math.Between(64, scene.scale.height - 64);
+
+        //  `add.sprite` is a Phaser GameObjectFactory method and it returns a Sprite Game Object instance
+        const star = scene.add.sprite(x, y, 'star');
+
+        //  ... which you can then act upon. Here we create a Phaser Tween to fade the star sprite in and out.
+        //  You could, of course, do this from within the Phaser Scene code, but this is just an example
+        //  showing that Phaser objects and systems can be acted upon from outside of Phaser itself.
+        scene.add.tween({
+            targets: star,
+            duration: 500 + Math.random() * 1000,
+            alpha: 0,
+            yoyo: true,
+            repeat: -1
+        });
+    }
+
+}
+
+//  This event is emitted from the PhaserGame component:
+const currentScene = (scene) => {
+
+    canMoveSprite.value = (scene.scene.key !== 'MainMenu');
+
+}
+</script>
+
 <template>
     <PhaserGame ref="phaserRef" @current-active-scene="currentScene" />
     <div>
-        <div v-if="spritePosition">Sprite Position: {{ spritePosition }}</div>
-        <button @click="changeScene">Change Scene</button>
-        <button @click="moveSprite" :disabled="!canMoveSprite">Move Sprite</button>
-        <button @click="addSprite">Add Sprite</button>
-
-        <div>Data from server: {{ serverData }}</div>
-
-        <!-- Отобразить параметры первого объекта -->
-        <div v-if="filteredTonmon">
-            <h2>Filtered Tonmon</h2>
-            <ul>
-                <li>Name: {{ filteredTonmon.name }}</li>
-                <li>Parameter 1: {{ filteredTonmon.element }}</li>
-                <li>Parameter 2: {{ filteredTonmon.rarity }}</li>
-                <li>Parameter 2: {{ filteredTonmon.health }}</li>
-                <!-- Добавьте другие параметры по аналогии -->
-            </ul>
+        <div>
+            <button class="button" @click="changeScene">Change Scene</button>
         </div>
-
-        <button @click="sendMessage">Send Message to Server</button>
+        <div>
+            <button :disabled="canMoveSprite" class="button" @click="moveSprite">Toggle Movement</button>
+        </div>
+        <div class="spritePosition">Sprite Position:
+            <pre>{{ spritePosition }}</pre>
+        </div>
+        <div>
+            <button class="button" @click="addSprite">Add New Sprite</button>
+        </div>
     </div>
 </template>
-
-<script setup>
-import { ref, watch } from 'vue'
-
-const socket = new WebSocket('ws://localhost:4444');
-
-const serverData = ref('');
-
-socket.addEventListener('open', function(event) {
-    socket.send('hello server');
-});
-
-socket.addEventListener('message', function(event) {
-    console.log('Message from server', event.data);
-    serverData.value = JSON.parse(event.data); // Преобразуем строку JSON в объект
-});
-
-const sendMessage = () => {
-    socket.send('hello from client2');
-};
-
-const filteredTonmon = ref(null);
-
-// Применение фильтрации к данным о тонмонсах после их обновления
-serverData.value = watch(serverData, (newValue) => {
-    if (newValue && newValue.length > 0) {
-        // Ищем объект с именем "Pikachu" в массиве данных
-        filteredTonmon.value = newValue.find(tonmon => tonmon.name === "Pikachu");
-    }
-});
-</script>
