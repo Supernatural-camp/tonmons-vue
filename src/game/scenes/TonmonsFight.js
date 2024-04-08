@@ -1,11 +1,14 @@
-import { Scene } from 'phaser'
+
 import { ref } from 'vue'
+import * as Colyseus from 'colyseus.js'
+import Phaser from 'phaser'
 
-export class TonmonsFight extends Scene {
-
+export class TonmonsFight extends Phaser.Scene {
+        
     constructor() {
         super('TonmonFight')
     }
+    
 
     preload() {
         this.load.image("backgroundFight", "public/assets/FightScene-assets/backgroundFightScenejpg.jpg");
@@ -18,20 +21,19 @@ export class TonmonsFight extends Scene {
             frameHeight: 106
         });
     }
+    init(){
+        this.client = new Colyseus.Client('ws://localhost:4444')
 
+    }
     async create() {
         this.background = this.add.tileSprite(512, 384, this.game.config.width, this.game.config.height, 'backgroundFight').setAlpha(0.5).setScale(1.7);
 
-        const socket = new WebSocket('ws://localhost:4444');
+        const room = await this.client.joinOrCreate('my_room');
+        console.log(room.sessionId);
         const serverData = ref(null);
 
-        socket.addEventListener('open', function(event) {
-            socket.send('hello server');
-        });
-
-        socket.addEventListener('message', async (event) => { // Асинхронная стрелочная функция
-            console.log('Message from server', event.data);
-            serverData.value = JSON.parse(event.data);
+        room.on('tonmonsData', (data) => {
+            serverData.value = data;
         });
 
         const getTonmonInfo = (nameTonmon, parameterType) => {
@@ -44,10 +46,6 @@ export class TonmonsFight extends Scene {
             }
             return null;
         };
-
-        this.scene.launch('Preloader');
-        await new Promise(resolve => socket.addEventListener('message', resolve));
-        this.scene.stop('Preloader');
 
         const hero1Name = getTonmonInfo("Pikachu", "name");
         const hero2Name = getTonmonInfo("Squirtle", "name");
